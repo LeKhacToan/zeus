@@ -99,12 +99,16 @@ function listMajors(auth) {
   const request = {
     auth,
     spreadsheetId: "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
-    range: "Test1!A2:E",
+    range: "Test1!C2",
     valueInputOption: "USER_ENTERED",
     resource: {
       values: [
-        ["Void", "Canvas", "Website"],
-        ["Paul", "Shan", "Human"],
+        ["x"],
+        ['x'],
+        ['x'],
+        ['x'],
+        ['x'],
+        ['x']
       ],
     },
   };
