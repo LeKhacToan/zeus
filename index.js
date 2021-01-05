@@ -8,6 +8,7 @@ const SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 // created automatically when the authorization flow completes for the first
 // time.
 const TOKEN_PATH = "token.json";
+const VALUES_PATH = "values.json";
 
 // Load client secrets from a local file.
 fs.readFile("credentials.json", (err, content) => {
@@ -79,25 +80,50 @@ function getNewToken(oAuth2Client, callback) {
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
 function listMajors(auth) {
-  const sheets = google.sheets({ version: "v4", auth });
-  
-  const request = {
-    auth,
-    spreadsheetId: "1KajsP_vsI0_wlcJgwrNDgY2aAwTGCehTW4DKxoY3rQg",
-    range: "2020!A1",
-    valueInputOption: "USER_ENTERED",
-    resource: {
-      majorDimension: "COLUMNS",
-      values: [[36.3, "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"]],
-    },
-  };
 
-  sheets.spreadsheets.values.update(request, (err, response) => {
+  let values = null;
+  fs.readFile(VALUES_PATH, (err, data) => {
     if (err) {
-      console.log("The API returned an error: " + err);
-      return;
+      console.log("Need create values.json file and set values");
     } else {
-      console.log(`Updated: ${new Date()}`);
+      values = JSON.parse(data);
+      const { sheet, column, row, spreadsheet_id: spreadsheetId } = values;
+      const range = `${sheet}!${colName(column)}${row}`;
+
+      const request = {
+        auth,
+        spreadsheetId,
+        range,
+        valueInputOption: "USER_ENTERED",
+        resource: {
+          majorDimension: "COLUMNS",
+          values: [[36.3, "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"]],
+        },
+      };
+    
+      const sheets = google.sheets({ version: "v4", auth });
+
+      sheets.spreadsheets.values.update(request, (err, response) => {
+        if (err) {
+          console.log("The API returned an error: " + err);
+          return;
+        } else {
+          console.log(`Updated: ${new Date()}`);
+        }
+      });
     }
   });
 }
+
+function colName(number) {
+  const ordA = "A".charCodeAt(0);
+  const ordZ = "Z".charCodeAt(0);
+  const len = ordZ - ordA + 1;
+
+  let name = "";
+  while (number >= 0) {
+    name = String.fromCharCode((number % len) + ordA) + name;
+    number = Math.floor(number / len) - 1;
+  }
+  return name;
+};
