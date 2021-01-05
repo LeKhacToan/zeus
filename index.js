@@ -89,6 +89,7 @@ function listMajors(auth) {
       values = JSON.parse(data);
       const { sheet, column, row, spreadsheet_id: spreadsheetId } = values;
       const range = `${sheet}!${colName(column)}${row}`;
+      const temperature = 36 + Math.floor(Math.random() * 10)/10;  
 
       const request = {
         auth,
@@ -97,7 +98,7 @@ function listMajors(auth) {
         valueInputOption: "USER_ENTERED",
         resource: {
           majorDimension: "COLUMNS",
-          values: [[36.3, "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"]],
+          values: [[temperature, "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"]],
         },
       };
     
@@ -109,6 +110,7 @@ function listMajors(auth) {
           return;
         } else {
           console.log(`Updated: ${new Date()}`);
+          updateValuesFile(values)
         }
       });
     }
@@ -127,3 +129,11 @@ function colName(number) {
   }
   return name;
 };
+
+function updateValuesFile(values) {
+  const {column} = values
+  values = {...values, column: column + 1}
+  fs.writeFile(VALUES_PATH, JSON.stringify(values), (err) => {
+    if (err) return console.error(err);
+  });
+}
